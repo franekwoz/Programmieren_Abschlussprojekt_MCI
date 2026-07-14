@@ -1,0 +1,74 @@
+lipo:
+  battery_type: LiPo
+  series_cells: 10
+  parallel_cells: 1
+  capacity_nom_Ah: 10
+  initial_soc: 0.70
+  cell_internal_resistance_ohm: 0.008
+  soc_support_points:
+    - 0.00
+    - 0.04
+    - 0.09
+    - 0.13
+    - 0.17
+    - 0.21
+    - 0.26
+    - 0.30
+    - 0.40
+    - 0.52
+    - 0.64
+    - 0.76
+    - 0.88
+    - 1.00
+  cell_ocv_support_points:
+    - 3.200
+    - 3.587
+    - 3.685
+    - 3.756
+    - 3.787
+    - 3.828
+    - 3.881
+    - 3.905
+    - 3.955
+    - 4.027
+    - 4.070
+    - 4.116
+    - 4.165
+    - 4.200
+mmc:
+  battery_type: MMC
+  series_cells: 10
+  parallel_cells: 1
+  capacity_nom_Ah: 10
+  initial_soc: 0.70
+  cell_internal_resistance_ohm: 0.007
+  soc_support_points:
+    - 0.00
+    - 0.04
+    - 0.09
+    - 0.13
+    - 0.17
+    - 0.21
+    - 0.26
+    - 0.30
+    - 0.40
+    - 0.52
+    - 0.64
+    - 0.76
+    - 0.88
+    - 1.00
+  cell_ocv_support_points:
+    - 3.200
+    - 3.261
+    - 3.317
+    - 3.385
+    - 3.424
+    - 3.466
+    - 3.539
+    - 3.565
+    - 3.665
+    - 3.764
+    - 3.891
+    - 4.014
+    - 4.108
+    - 4.200
