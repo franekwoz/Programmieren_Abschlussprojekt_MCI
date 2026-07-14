@@ -1,0 +1,20 @@
+@startuml
+class BatteryPack
+class LiPoBattery
+class MMCBattery
+class BatterySimulator
+class GpsPoint
+class RouteSegment
+class RouteData
+class RideSimulator
+class SimulationResult
+
+BatteryPack <|-- LiPoBattery
+BatteryPack <|-- MMCBattery
+BatterySimulator --> BatteryPack
+RideSimulator --> RouteData
+RideSimulator --> BatterySimulator
+SimulationResult --> BatterySimulator
+GpsPoint --> RouteData
+RouteSegment --> RouteData
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+start
+:GPS-Datei lesen;
+:GPS-Daten validieren;
+:Segmente berechnen;
+:Fahrphysik berechnen;
+:Akkus simulieren;
+:Diagramme exportieren;
+:Zusammenfassung exportieren;
+stop
+@enduml
