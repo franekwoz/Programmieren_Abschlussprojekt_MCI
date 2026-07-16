@@ -85,17 +85,19 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     summaries = []
     for battery in battery_types:
+        battery_key = battery.battery_type.lower()
+        battery_figures_dir = figures_dir / battery_key
+        battery_reports_dir = reports_dir / battery_key
         simulator = BatterySimulator(battery)
         current_profile = [segment.motor_current_a for segment in route_data.segments]
         duration_profile = [segment.duration_s for segment in route_data.segments]
         simulator.simulate(current_profile, duration_profile)
-        create_all_plots(route_data, simulator, output_dir=figures_dir)
-        summary = export_summary(route_data, simulator, battery, output_dir=reports_dir)
+        create_all_plots(route_data, simulator, output_dir=battery_figures_dir)
+        summary = export_summary(route_data, simulator, battery, output_dir=battery_reports_dir)
         summaries.append(summary)
-
-    print(json.dumps(summaries[0] if summaries else {}, indent=2))
+        logger.info("Wrote results for battery type %s to %s / %s", battery.battery_type, battery_figures_dir, battery_reports_dir)
+    print(json.dumps(summaries, indent=2))
     return 0
-
 
 if __name__ == "__main__":
     main()
