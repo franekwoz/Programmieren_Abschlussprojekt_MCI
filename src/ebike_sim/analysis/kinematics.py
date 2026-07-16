@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from statistics import median
 
 from ..analysis.forces import calculate_forces
+from ..extensions.air_density import calculate_air_density
 from ..models.bike_parameters import BikeParameters
 from ..models.gps_point import GpsPoint
 from ..models.route_data import RouteData
@@ -346,16 +347,25 @@ def calculate_route_data(route_data: RouteData, params: BikeParameters | None = 
                 motor_current_a=0.0,
                 raw_speed_m_s=segment_kinematics.raw_speed_m_s,
             )
+            segment_air_density_kg_m3 = params.air_density_kg_m3
+            if segment_kinematics.average_temperature_c is not None:
+                average_elevation_m = (segment_kinematics.start_point.elevation_m + segment_kinematics.end_point.elevation_m) / 2.0
+                try:
+                    segment_air_density_kg_m3 = calculate_air_density(average_elevation_m, segment_kinematics.average_temperature_c)
+                except ValueError:
+                    logger.warning("Falling back to default air density for an invalid elevation/temperature reading.")
+
             segment = calculate_forces(
                 segment,
                 total_mass_kg=params.total_mass_kg,
                 gravity_m_s2=params.gravity_m_s2,
-                air_density_kg_m3=params.air_density_kg_m3,
+                air_density_kg_m3=segment_air_density_kg_m3,
                 cw_a_m2=params.cw_a_m2,
                 wheel_radius_m=params.wheel_radius_m,
                 gear_ratio=params.gear_ratio,
                 motor_constant_nm_per_a=params.motor_constant_nm_per_a,
             )
+
             segments.append(segment)
             total_distance_m += segment.horizontal_distance_m
             total_duration_s += segment.duration_s
