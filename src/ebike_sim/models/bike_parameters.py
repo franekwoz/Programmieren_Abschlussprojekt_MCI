@@ -12,6 +12,7 @@ class BikeParameters:
     gravity_m_s2: float = 9.81
     gear_ratio: float = 1.0
     motor_efficiency: float = 1.0
+    rolling_resistance_coefficient: float = 0.005
 
     @property
     def total_mass_kg(self) -> float:

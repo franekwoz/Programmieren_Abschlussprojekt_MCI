@@ -28,3 +28,4 @@ class RouteSegment:
     motor_torque_nm: float
     motor_current_a: float
     raw_speed_m_s: float = 0.0
+    rolling_resistance_force_n: float = 0.0
