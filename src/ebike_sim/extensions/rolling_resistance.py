@@ -1,9 +1,12 @@
 """Extension module for rolling resistance modeling.
 
-TODO(extension): configure rolling resistance coefficients, integrate the force into the ride physics, and model different surfaces.
+Models rolling resistance as a constant coefficient times the slope-adjusted
+normal force, added as an additional resisting force alongside aerodynamic
+drag and grade force.
 """
 
 from __future__ import annotations
+import math
 
 
 def calculate_rolling_resistance(
@@ -12,4 +15,5 @@ def calculate_rolling_resistance(
     rolling_coefficient: float,
     slope_angle_rad: float,
 ) -> float:
-    raise NotImplementedError("Rolling resistance is not implemented yet")
+    """Estimate the rolling resistance force (N) opposing forward motion."""
+    return rolling_coefficient * total_mass_kg * gravity_m_s2 * math.cos(slope_angle_rad)
