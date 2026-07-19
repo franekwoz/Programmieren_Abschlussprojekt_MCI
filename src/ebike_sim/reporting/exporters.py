@@ -23,6 +23,14 @@ def export_summary(route_data: RouteData, simulator: BatterySimulator, battery: 
         "ascent_m": round(route_data.ascent_m, 3),
         "descent_m": round(route_data.descent_m, 3),
         "maximum_power_w": round(route_data.maximum_power_w, 3),
+        "rejected_recuperation_energy_wh": round(
+            sum(
+                power_w * duration_s
+                for power_w, duration_s in zip(simulator.rejected_recuperation_power_w, simulator.duration_profile)
+            )
+            / 3600.0,
+            3,
+        ),
         "maximum_motor_current_a": round(max((segment.motor_current_a for segment in route_data.segments), default=0.0), 3),
         "initial_soc": round(battery.initial_soc, 3),
         "final_soc": round(battery.soc, 3),

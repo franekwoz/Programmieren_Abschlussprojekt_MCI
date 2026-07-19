@@ -18,6 +18,7 @@ class BatterySimulator:
         self.power_profile: list[float] = []
         self.elevation_profile: list[float] = []
         self.temperature_profile: list[float | None] = []
+        self.rejected_recuperation_power_w: list[float] = []
 
     def simulate(self, current_profile: list[float], duration_profile: list[float], temperature_profile: list[float | None] | None = None) -> None:
         if len(current_profile) != len(duration_profile):
@@ -37,14 +38,21 @@ class BatterySimulator:
         self.power_profile = [0.0]
         self.elevation_profile = [0.0]
         self.temperature_profile = [temperature_profile[0] if temperature_profile else None]
-
+        self.rejected_recuperation_power_w = []
 
         elapsed_time = 0.0
         for i, (current, duration) in enumerate(zip(current_profile, duration_profile)):
             step_temperature_c = temperature_profile[i] if temperature_profile is not None else None
             if step_temperature_c is not None:
                 self.battery_pack.set_temperature(step_temperature_c)
-            self.battery_pack.apply_current(current=current, duration=duration)
+            
+            applied_current = current
+            rejected_power_w = 0.0
+            if current < 0.0 and self.battery_pack.is_full():
+                rejected_power_w = -current * self.battery_pack.voltage(0.0)
+                applied_current = 0.0
+            
+            self.battery_pack.apply_current(current=applied_current, duration=duration)
             elapsed_time += duration
             self.time_profile.append(elapsed_time)
             self.voltage_profile.append(self.battery_pack.voltage(current))
@@ -54,6 +62,7 @@ class BatterySimulator:
             self.power_profile.append(self.power_profile[-1])
             self.elevation_profile.append(self.elevation_profile[-1])
             self.temperature_profile.append(step_temperature_c)
+            self.rejected_recuperation_power_w.append(rejected_power_w)
 
         if self.battery_pack.is_empty():
             print("Warning: Battery is empty after simulation.")
