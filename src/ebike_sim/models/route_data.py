@@ -17,3 +17,4 @@ class RouteData:
     average_speed_m_s: float
     maximum_speed_m_s: float
     maximum_power_w: float
+    total_braking_energy_j: float = 0.0

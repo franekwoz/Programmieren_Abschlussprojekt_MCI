@@ -321,6 +321,7 @@ def calculate_route_data(route_data: RouteData, params: BikeParameters | None = 
     maximum_smoothed_speed_m_s = 0.0
     maximum_smoothed_acceleration_m_s2 = 0.0
     maximum_power_w = 0.0
+    total_braking_energy_j = 0.0
 
     for group in groups:
         for segment_kinematics in group:
@@ -380,6 +381,7 @@ def calculate_route_data(route_data: RouteData, params: BikeParameters | None = 
             maximum_smoothed_speed_m_s = max(maximum_smoothed_speed_m_s, segment.speed_m_s)
             maximum_smoothed_acceleration_m_s2 = max(maximum_smoothed_acceleration_m_s2, abs(segment.acceleration_m_s2))
             maximum_power_w = max(maximum_power_w, segment.mechanical_power_w)
+            total_braking_energy_j += segment.braking_resistor_power_w * segment.duration_s
 
     route_data.segments = segments
     route_data.total_distance_m = total_distance_m
@@ -389,6 +391,7 @@ def calculate_route_data(route_data: RouteData, params: BikeParameters | None = 
     route_data.average_speed_m_s = total_distance_m / total_duration_s if total_duration_s > 0.0 else 0.0
     route_data.maximum_speed_m_s = maximum_smoothed_speed_m_s
     route_data.maximum_power_w = maximum_power_w
+    route_data.total_braking_energy_j = total_braking_energy_j
 
     logger.info(
         "Kinematics: raw_segments=%d short_intervals=%d gap_intervals=%d max_raw_speed=%.3f m/s max_smoothed_speed=%.3f m/s max_raw_accel=%.3f m/s^2 max_smoothed_accel=%.3f m/s^2 max_power=%.3f W",
