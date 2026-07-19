@@ -23,7 +23,7 @@ def export_summary(route_data: RouteData, simulator: BatterySimulator, battery: 
         "ascent_m": round(route_data.ascent_m, 3),
         "descent_m": round(route_data.descent_m, 3),
         "maximum_power_w": round(route_data.maximum_power_w, 3),
-        "total_breaking_energy_j": round(route_data.total_breaking_energy_j / 3600.0, 3),
+        "total_braking_energy_j": round(route_data.total_braking_energy_j / 3600.0, 3),
         "rejected_recuperation_energy_wh": round(
             sum(
                 power_w * duration_s
