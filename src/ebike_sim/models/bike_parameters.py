@@ -13,6 +13,9 @@ class BikeParameters:
     gear_ratio: float = 1.0
     motor_efficiency: float = 1.0
     rolling_resistance_coefficient: float = 0.005
+    recuperation_efficiency: float = 0.6
+    maximum_recuperation_current_a: float = 10.0
+    nominal_battery_voltage_v: float = 37.0
 
     @property
     def total_mass_kg(self) -> float:

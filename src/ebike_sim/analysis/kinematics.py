@@ -365,6 +365,9 @@ def calculate_route_data(route_data: RouteData, params: BikeParameters | None = 
                 gear_ratio=params.gear_ratio,
                 motor_constant_nm_per_a=params.motor_constant_nm_per_a,
                 rolling_resistance_coefficient=params.rolling_resistance_coefficient,
+                recuperation_efficiency=params.recuperation_efficiency,
+                maximum_recuperation_current_a=params.maximum_recuperation_current_a,
+                nominal_battery_voltage_v=params.nominal_battery_voltage_v,
             )
 
             segments.append(segment)
