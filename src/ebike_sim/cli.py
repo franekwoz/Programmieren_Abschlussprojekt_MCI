@@ -91,7 +91,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         simulator = BatterySimulator(battery)
         current_profile = [segment.motor_current_a for segment in route_data.segments]
         duration_profile = [segment.duration_s for segment in route_data.segments]
-        simulator.simulate(current_profile, duration_profile)
+        temperature_profile = [segment.average_temperature_c for segment in route_data.segments]
+        simulator.simulate(current_profile, duration_profile, temperature_profile)
         create_all_plots(route_data, simulator, output_dir=battery_figures_dir)
         summary = export_summary(route_data, simulator, battery, output_dir=battery_reports_dir)
         summaries.append(summary)
