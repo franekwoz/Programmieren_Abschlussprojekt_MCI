@@ -40,7 +40,8 @@ class SegmentKinematics:
     acceleration_m_s2: float = 0.0
     slope_ratio: float = 0.0
     slope_angle_rad: float = 0.0
-
+    heading_deg: float = 0.0
+    compass_direction: str = "N"
 
 def _is_finite(value: float) -> bool:
     return math.isfinite(value)
@@ -53,6 +54,23 @@ def haversine_distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> 
     delta_lambda = math.radians(lon2 - lon1)
     a = math.sin(delta_phi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2.0) ** 2
     return 2.0 * EARTH_RADIUS_M * math.asin(math.sqrt(a))
+
+COMPASS_DIRECTIONS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+
+def calculate_bearing_deg(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Return the initial compass bearing (0-360 degrees, 0 = North) from point 1 to point 2."""
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_lambda = math.radians(lon2 - lon1)
+    y = math.sin(delta_lambda) * math.cos(phi2)
+    x = math.cos(phi1) * math.sin(phi2) - math.sin(phi1) * math.cos(phi2) * math.cos(delta_lambda)
+    bearing_deg = math.degrees(math.atan2(y, x)) 
+    return (bearing_deg + 360.0) % 360.0
+
+def bearing_to_compass_direction(bearing_deg: float) -> str:
+    """Convert a bearing in degrees to a compass direction (N, NE, E, SE, S, SW, W, NW)."""
+    index = round(bearing_deg / 45.0) % 8
+    return COMPASS_DIRECTIONS[index]
 
 
 def split_into_continuous_groups(segment_data: list[SegmentKinematics], max_gap_s: float) -> list[list[SegmentKinematics]]:
@@ -233,6 +251,8 @@ def _build_segment_kinematics(points: list[GpsPoint]) -> tuple[list[SegmentKinem
         start_time_s = (start_point.timestamp - route_start_time).total_seconds()
         midpoint_time_s = start_time_s + duration_s / 2.0
         horizontal_distance_m = haversine_distance_m(start_point.latitude, start_point.longitude, end_point.latitude, end_point.longitude)
+        heading_deg = calculate_bearing_deg(start_point.latitude, start_point.longitude, end_point.latitude, end_point.longitude)
+        compass_direction = bearing_to_compass_direction(heading_deg)
         elevation_difference_m = end_point.elevation_m - start_point.elevation_m
         spatial_distance_m = math.sqrt(horizontal_distance_m**2 + elevation_difference_m**2)
         raw_speed_m_s = spatial_distance_m / duration_s
@@ -261,6 +281,8 @@ def _build_segment_kinematics(points: list[GpsPoint]) -> tuple[list[SegmentKinem
                 raw_speed_is_valid=raw_speed_is_valid,
                 slope_ratio=slope_ratio,
                 slope_angle_rad=slope_angle_rad,
+                heading_deg=heading_deg,
+                compass_direction=compass_direction
             )
         )
 
@@ -347,6 +369,8 @@ def calculate_route_data(route_data: RouteData, params: BikeParameters | None = 
                 motor_torque_nm=0.0,
                 motor_current_a=0.0,
                 raw_speed_m_s=segment_kinematics.raw_speed_m_s,
+                heading_deg=segment_kinematics.heading_deg,
+                compass_direction=segment_kinematics.compass_direction
             )
             segment_air_density_kg_m3 = params.air_density_kg_m3
             if segment_kinematics.average_temperature_c is not None:
