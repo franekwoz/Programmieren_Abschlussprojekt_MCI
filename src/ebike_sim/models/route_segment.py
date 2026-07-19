@@ -30,3 +30,5 @@ class RouteSegment:
     raw_speed_m_s: float = 0.0
     rolling_resistance_force_n: float = 0.0
     braking_resistance_power_w: float = 0.0
+    compass_direction: str = "N"
+    heading_deg: float = 0.0
