@@ -4,6 +4,10 @@ import math
 from dataclasses import dataclass
 
 from example_utils import clamp
+from ..extensions.temperature_model import (
+    calculate_temperature_adjusted_capacity,
+    calculate_temperature_adjusted_resistance,
+)
 
 
 class BatteryPack:
@@ -14,13 +18,22 @@ class BatteryPack:
         self.initial_soc = float(initial_soc)
         self.soc = float(initial_soc)
         self.internal_resistance_ohm = float(internal_resistance_ohm)
+        self.temperature_c: float | None = None  
         self.battery_type = "base"
+
+    def set_temperature(self, temperature_c: float | None) -> None:
+        """ Update the battery's current temperature, used to derate resistance and capacity."""
+        self.temperature_c = temperature_c
 
     def reset(self, initial_soc: float | None = None) -> None:
         self.soc = self.initial_soc if initial_soc is None else float(initial_soc)
 
     def apply_current(self, current: float, duration: float) -> None:
-        delta_soc = current * duration / (self.capacity_nom_Ah * 3600.0)
+        effective_capacity_Ah = self.capacity_nom_Ah
+        if self.temperature_c is not None:
+            effective_capacity_Ah = calculate_temperature_adjusted_capacity(self.capacity_nom_Ah, self.temperature_c)
+
+        delta_soc = current * duration / (effective_capacity_Ah * 3600.0)
         self.soc = clamp(self.soc - delta_soc, 0.0, 1.0)
 
     def is_empty(self) -> bool:
@@ -86,8 +99,16 @@ class LiPoBattery(BatteryPack):
         return self.open_circuit_voltage() - current * self.pack_internal_resistance_ohm()
 
     def pack_internal_resistance_ohm(self) -> float:
-        return self.cell_internal_resistance_ohm * self.series_cells / self.parallel_cells
+        base_resistance_ohm = self.cell_internal_resistance_ohm * self.series_cells / self.parallel_cells
+        if self.temperature_c is None: 
+            return base_resistance_ohm
+        return calculate_temperature_adjusted_resistance(base_resistance_ohm, self.temperature_c)
+    
+    
 
+
+
+   
 
 class MMCBattery(BatteryPack):
     def __init__(self, initial_soc: float = 0.7):
@@ -122,4 +143,7 @@ class MMCBattery(BatteryPack):
         return self.open_circuit_voltage() - current * self.pack_internal_resistance_ohm()
 
     def pack_internal_resistance_ohm(self) -> float:
-        return self.cell_internal_resistance_ohm * self.series_cells / self.parallel_cells
+        base_resistance_ohm = self.cell_internal_resistance_ohm * self.series_cells / self.parallel_cells
+        if self.temperature_c is None: 
+            return base_resistance_ohm
+        return calculate_temperature_adjusted_resistance(base_resistance_ohm, self.temperature_c)
